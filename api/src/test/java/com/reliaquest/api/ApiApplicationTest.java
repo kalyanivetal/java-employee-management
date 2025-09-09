@@ -12,6 +12,5 @@ class ApiApplicationTest {
     }
 
     @Test
-    void contextLoads() {
-    }
+    void contextLoads() {}
 }

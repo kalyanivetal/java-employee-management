@@ -1,5 +1,7 @@
 package com.reliaquest.api.client;
 
+import static com.reliaquest.api.server.TraceIdFilter.MDC_TRACE_ID_KEY;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -8,10 +10,8 @@ import com.reliaquest.api.dto.EmployeeDataDTO;
 import com.reliaquest.api.exception.EmployeeApiException;
 import com.reliaquest.api.model.Employee;
 import com.reliaquest.api.response.ApiResponse;
-
 import java.util.List;
 import java.util.Map;
-
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.http.HttpMethod;
@@ -22,8 +22,6 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
-
-import static com.reliaquest.api.server.TraceIdFilter.MDC_TRACE_ID_KEY;
 
 @Slf4j
 @Service
@@ -51,8 +49,7 @@ public class ApiClient {
                     .bodyToMono(String.class)
                     .block();
 
-            return objectMapper.readValue(response, new TypeReference<EmployeeDataDTO<List<Employee>>>() {
-            });
+            return objectMapper.readValue(response, new TypeReference<EmployeeDataDTO<List<Employee>>>() {});
 
         } catch (WebClientResponseException ex) {
             log.error("Server responded with error :{}, body: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
@@ -85,8 +82,7 @@ public class ApiClient {
                     .bodyToMono(String.class)
                     .block();
 
-            return objectMapper.readValue(response, new TypeReference<EmployeeDataDTO<Employee>>() {
-            });
+            return objectMapper.readValue(response, new TypeReference<EmployeeDataDTO<Employee>>() {});
         } catch (WebClientResponseException ex) {
             log.error("Server responded with error :{}, body: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
             HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());
@@ -122,8 +118,7 @@ public class ApiClient {
             log.info("Server response: {}", response);
 
             ApiResponse<Boolean> result =
-                    objectMapper.readValue(response, new TypeReference<ApiResponse<Boolean>>() {
-                    });
+                    objectMapper.readValue(response, new TypeReference<ApiResponse<Boolean>>() {});
             if (Boolean.TRUE.equals(result.getData())) {
                 log.info("Employee {} deleted successfully", name);
                 return true;
@@ -155,8 +150,7 @@ public class ApiClient {
                     .bodyToMono(String.class)
                     .block();
 
-            return objectMapper.readValue(response, new TypeReference<EmployeeDataDTO<Employee>>() {
-            });
+            return objectMapper.readValue(response, new TypeReference<EmployeeDataDTO<Employee>>() {});
         } catch (WebClientResponseException ex) {
             log.error("Server responded with error :{}, body: {}", ex.getStatusCode(), ex.getResponseBodyAsString());
             HttpStatus status = HttpStatus.resolve(ex.getStatusCode().value());

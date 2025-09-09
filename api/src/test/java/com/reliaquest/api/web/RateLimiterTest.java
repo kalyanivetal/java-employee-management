@@ -5,11 +5,9 @@ import static org.mockito.Mockito.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -71,5 +69,4 @@ class RateLimiterTest {
         verify(response).setStatus(429);
         assertTrue(responseWriter.toString().contains("Too many requests"));
     }
-
 }

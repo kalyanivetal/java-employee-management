@@ -10,10 +10,8 @@ import com.reliaquest.api.dto.EmployeeCreateRequest;
 import com.reliaquest.api.dto.EmployeeDataDTO;
 import com.reliaquest.api.exception.EmployeeApiException;
 import com.reliaquest.api.model.Employee;
-
 import java.util.List;
 import java.util.UUID;
-
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -56,7 +54,9 @@ class EmployeeServiceTest {
         String id1 = UUID.randomUUID().toString();
         String id2 = UUID.randomUUID().toString();
 
-        List<Employee> employees = List.of(employee(id1, "Alice", 1000, "Engineer", 23, "abc@gmail.com"), employee(id2, "Bob", 1500, "Engineer-II", 23, "abc1@gmail.com"));
+        List<Employee> employees = List.of(
+                employee(id1, "Alice", 1000, "Engineer", 23, "abc@gmail.com"),
+                employee(id2, "Bob", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
@@ -101,7 +101,9 @@ class EmployeeServiceTest {
 
     @Test
     void searchEmployeesByName_returnsFilteredEmployees() {
-        List<Employee> employees = List.of(employee("1", "David main", 1000, "Engineer", 23, "abc@gmail.com"), employee("2", "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
+        List<Employee> employees = List.of(
+                employee("1", "David main", 1000, "Engineer", 23, "abc@gmail.com"),
+                employee("2", "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
@@ -118,7 +120,9 @@ class EmployeeServiceTest {
     void getHighestSalary_returnsMaxSalary() {
         String id1 = UUID.randomUUID().toString();
         String id2 = UUID.randomUUID().toString();
-        List<Employee> employees = List.of(employee(id1, "David main", 1000, "Engineer", 23, "abc@gmail.com"), employee(id2, "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
+        List<Employee> employees = List.of(
+                employee(id1, "David main", 1000, "Engineer", 23, "abc@gmail.com"),
+                employee(id2, "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
@@ -271,7 +275,9 @@ class EmployeeServiceTest {
         String id1 = UUID.randomUUID().toString();
         String id2 = UUID.randomUUID().toString();
 
-        List<Employee> employees = List.of(employee(id1, null, 1000, "Engineer", 23, "abc@gmail.com"), employee(id2, "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
+        List<Employee> employees = List.of(
+                employee(id1, null, 1000, "Engineer", 23, "abc@gmail.com"),
+                employee(id2, "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
@@ -288,7 +294,9 @@ class EmployeeServiceTest {
         String id1 = UUID.randomUUID().toString();
         String id2 = UUID.randomUUID().toString();
 
-        List<Employee> employees = List.of(employee(id1, "David main", 1000, "Engineer", 23, "abc@gmail.com"), employee(id2, "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
+        List<Employee> employees = List.of(
+                employee(id1, "David main", 1000, "Engineer", 23, "abc@gmail.com"),
+                employee(id2, "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 

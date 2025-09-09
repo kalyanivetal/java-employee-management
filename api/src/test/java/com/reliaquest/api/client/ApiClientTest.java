@@ -10,11 +10,9 @@ import com.reliaquest.api.dto.EmployeeDataDTO;
 import com.reliaquest.api.exception.EmployeeApiException;
 import com.reliaquest.api.model.Employee;
 import com.reliaquest.api.response.ApiResponse;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.*;
@@ -23,6 +21,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
+
 @SpringBootTest
 public class ApiClientTest {
 

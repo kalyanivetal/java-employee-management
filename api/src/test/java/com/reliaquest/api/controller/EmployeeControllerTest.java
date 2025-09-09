@@ -1,29 +1,24 @@
 package com.reliaquest.api.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.reliaquest.api.dto.EmployeeCreateRequest;
 import com.reliaquest.api.model.Employee;
 import com.reliaquest.api.service.EmployeeService;
-
+import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.util.List;
-import java.util.UUID;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -100,8 +95,7 @@ class EmployeeControllerTest {
 
     @Test
     void getTopTenHighestEarningEmployeeNames_shouldReturnList() throws Exception {
-        when(employeeService.getTop10HighestEarningEmployeeNames())
-                .thenReturn(List.of("Alice", "Bob", "Carol"));
+        when(employeeService.getTop10HighestEarningEmployeeNames()).thenReturn(List.of("Alice", "Bob", "Carol"));
 
         mockMvc.perform(get("/api/employees/topTenHighestEarningEmployeeNames"))
                 .andExpect(status().isOk())
