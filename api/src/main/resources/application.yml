@@ -7,7 +7,7 @@ mockEmployeeServer:
   base-url: /api/v1/
 
 rateLimiter:
-  permitsPerSecond: 2
+  permitsPerSecond: 1
   enabled: true
 
 logging:

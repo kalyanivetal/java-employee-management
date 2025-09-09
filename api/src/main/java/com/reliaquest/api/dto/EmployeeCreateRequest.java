@@ -23,4 +23,7 @@ public class EmployeeCreateRequest {
 
     @NotBlank
     private String title;
+
+    @NotBlank
+    private String email;
 }
