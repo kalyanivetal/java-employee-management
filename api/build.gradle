@@ -4,6 +4,14 @@ plugins {
 
 dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+    implementation 'org.hibernate.validator:hibernate-validator'
+    implementation 'org.glassfish:jakarta.el:4.0.2'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.11.0'
+    implementation 'com.google.guava:guava:32.1.2-jre'
+
 }
 
 springBoot {

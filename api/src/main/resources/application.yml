@@ -1,2 +1,16 @@
 spring.application.name: employee-api
 server.port: 8111
+
+mockEmployeeServer:
+  port: 8112
+  host: http://localhost
+  base-url: /api/v1/
+
+rateLimiter:
+  permitsPerSecond: 2
+  enabled: true
+
+logging:
+  level:
+    root: INFO
+    com.reliaquest.api: DEBUG
