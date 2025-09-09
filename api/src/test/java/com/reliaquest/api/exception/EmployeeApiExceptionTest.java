@@ -1,8 +1,7 @@
-package com.reliaquest.api;
+package com.reliaquest.api.exception;
 
 import static org.assertj.core.api.Assertions.*;
 
-import com.reliaquest.api.exception.EmployeeApiException;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 

@@ -10,4 +10,8 @@ class ApiApplicationTest {
     void someTest() {
         // do the thing here
     }
+
+    @Test
+    void contextLoads() {
+    }
 }

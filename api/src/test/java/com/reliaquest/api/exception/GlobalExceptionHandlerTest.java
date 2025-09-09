@@ -1,13 +1,10 @@
-package com.reliaquest.api;
+package com.reliaquest.api.exception;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
-import com.reliaquest.api.exception.EmployeeApiException;
-import com.reliaquest.api.exception.GlobalExceptionHandler;
 import com.reliaquest.api.response.ApiResponse;
 
-import java.net.ConnectException;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;

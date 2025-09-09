@@ -1,18 +1,19 @@
-package com.reliaquest.api;
+package com.reliaquest.api.web;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.reliaquest.api.web.RateLimitingInterceptor;
-import com.reliaquest.api.web.SimpleRateLimiter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Field;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-class RateLimitingInterceptorTest {
+class RateLimiterTest {
 
     private SimpleRateLimiter rateLimiter;
     private RateLimitingInterceptor interceptor;
@@ -29,7 +30,6 @@ class RateLimitingInterceptorTest {
         request = mock(HttpServletRequest.class);
         response = mock(HttpServletResponse.class);
 
-        // Mock response writer so we can verify output written on rate limit exceeded
         responseWriter = new StringWriter();
         when(response.getWriter()).thenReturn(new PrintWriter(responseWriter));
     }
@@ -46,13 +46,30 @@ class RateLimitingInterceptorTest {
     }
 
     @Test
-    void testBlockRequestWhenNoPermit() throws Exception {
+    void testBlockRequestWhenNoPermit1() throws Exception {
+        SimpleRateLimiter rateLimiter = mock(SimpleRateLimiter.class);
+        RateLimitingInterceptor interceptor = new RateLimitingInterceptor(rateLimiter);
+
+        HttpServletRequest request = mock(HttpServletRequest.class);
+        HttpServletResponse response = mock(HttpServletResponse.class);
+
+        StringWriter responseWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(responseWriter);
+
         when(rateLimiter.tryAcquire()).thenReturn(false);
+        when(response.getWriter()).thenReturn(printWriter);
+
+        Field field = RateLimitingInterceptor.class.getDeclaredField("isRateLimiterEnabled");
+        field.setAccessible(true);
+        field.set(interceptor, true);
 
         boolean result = interceptor.preHandle(request, response, new Object());
+
+        printWriter.flush();
 
         assertFalse(result);
         verify(response).setStatus(429);
         assertTrue(responseWriter.toString().contains("Too many requests"));
     }
+
 }

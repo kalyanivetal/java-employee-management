@@ -1,54 +1,35 @@
-package com.reliaquest.api;
+package com.reliaquest.api.client;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.reliaquest.api.client.ApiClient;
 import com.reliaquest.api.dto.EmployeeCreateRequest;
 import com.reliaquest.api.dto.EmployeeDataDTO;
 import com.reliaquest.api.exception.EmployeeApiException;
 import com.reliaquest.api.model.Employee;
 import com.reliaquest.api.response.ApiResponse;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
+
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.jupiter.api.*;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-
 @SpringBootTest
 public class ApiClientTest {
 
-    private static MockWebServer mockWebServer;
+    private MockWebServer mockWebServer;
     private ApiClient apiClient;
     private ObjectMapper objectMapper = new ObjectMapper();
     private WebClient webClient;
-
-    @Value("${mockEmployeeServer.port}")
-    private String port;
-
-    @Value("${mockEmployeeServer.host}")
-    private String host;
-
-    @BeforeAll
-    static void setupServer() throws IOException {
-        // mockWebServer = new MockWebServer();
-        // mockWebServer.start();
-    }
-
-    @AfterAll
-    static void stopServer() throws IOException {
-        mockWebServer.shutdown();
-    }
 
     private Employee employee(String id, String name, int salary, String title, int age, String email) {
         Employee emp = new Employee();
@@ -61,28 +42,36 @@ public class ApiClientTest {
         return emp;
     }
 
+    private String toJson(Object obj) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(obj);
+    }
+
     @BeforeEach
     void setup() throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
+
+        String baseUrl = mockWebServer.url("/").toString();
+
         webClient = WebClient.builder()
-                .baseUrl(host + ":" + port)
+                .baseUrl(baseUrl)
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                 .build();
-        var objectMapper = new ObjectMapper();
 
         apiClient = new ApiClient(webClient, objectMapper);
     }
 
-    private String toJson(Object obj) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(obj);
+    @AfterEach
+    void tearDown() throws IOException {
+        mockWebServer.shutdown();
     }
 
     @Test
     void getAllEmployees_returnsEmployeesList() throws Exception {
         List<Employee> employees = List.of(
-                employee("1", "Alice", 1000, "Worker", 35, "test@gmail.com"),
-                employee("2", "Bob", 1500, "Worker", 35, "test@gmail.com"));
+                employee(UUID.randomUUID().toString(), "Alice", 1000, "Worker", 35, "test1@gmail.com"),
+                employee(UUID.randomUUID().toString(), "Bob", 1500, "Worker", 35, "test2@gmail.com"));
+
         EmployeeDataDTO<List<Employee>> dto = new EmployeeDataDTO<>();
         dto.setData(employees);
 
@@ -99,6 +88,7 @@ public class ApiClientTest {
     void getEmployeeById_returnsEmployee() throws Exception {
         String id = UUID.randomUUID().toString();
         Employee employee = employee(id, "Alice", 1000, "Worker", 35, "test@gmail.com");
+
         EmployeeDataDTO<Employee> dto = new EmployeeDataDTO<>();
         dto.setData(employee);
 
@@ -108,15 +98,15 @@ public class ApiClientTest {
                 .addHeader("Content-Type", "application/json"));
 
         Employee result = apiClient.getEmployeeById(id).getData();
-        // Adding not equals to since records are generated randomly
-        assertThat(result.getName()).isNotEqualTo("Alice");
+        assertThat(result.getName()).isEqualTo("Alice");
+        assertThat(result.getId()).isEqualTo(id);
     }
 
     @Test
     void createEmployee_returnsCreatedEmployee() throws Exception {
         String id = UUID.randomUUID().toString();
-
         Employee employee = employee(id, "New Emp", 5000, "Worker", 35, "test@gmail.com");
+
         EmployeeDataDTO<Employee> dto = new EmployeeDataDTO<>();
         dto.setData(employee);
 
@@ -145,12 +135,8 @@ public class ApiClientTest {
                 .addHeader("Content-Type", "application/json"));
 
         boolean result = apiClient.deleteEmployeeByName("Alice");
-
-        // Adding is false because data is generated randomly
-        assertThat(result).isFalse();
+        assertThat(result).isTrue();
     }
-
-    // ----------------- Error Handling Tests --------------------
 
     @Test
     void getAllEmployees_handlesHttp4xxError() {
@@ -220,8 +206,6 @@ public class ApiClientTest {
         assertThat(ex.getMessage()).contains("Failed to delete employee");
     }
 
-    // ----------------- Exception & Edge Case Tests --------------------
-
     @Test
     void getAllEmployees_handlesJsonProcessingException() {
         mockWebServer.enqueue(new MockResponse().setResponseCode(200).setBody("INVALID_JSON"));
@@ -236,9 +220,8 @@ public class ApiClientTest {
 
     @Test
     void getAllEmployees_handlesNetworkException() {
-        // Stop the server to simulate network failure
         try {
-            mockWebServer.shutdown();
+            mockWebServer.shutdown(); // simulate network error
         } catch (Exception ignored) {
         }
 
@@ -248,12 +231,6 @@ public class ApiClientTest {
 
         assertThat(ex.getStatus()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
         assertThat(ex.getMessage()).contains("Unable to connect");
-
-        // Restart server for other tests
-        try {
-            mockWebServer.start();
-        } catch (Exception ignored) {
-        }
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.reliaquest.api;
+package com.reliaquest.api.service;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -10,8 +10,10 @@ import com.reliaquest.api.dto.EmployeeCreateRequest;
 import com.reliaquest.api.dto.EmployeeDataDTO;
 import com.reliaquest.api.exception.EmployeeApiException;
 import com.reliaquest.api.model.Employee;
-import com.reliaquest.api.service.EmployeeService;
+
 import java.util.List;
+import java.util.UUID;
+
 import org.junit.jupiter.api.*;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -38,17 +40,23 @@ class EmployeeServiceTest {
         closeable.close();
     }
 
-    private Employee employee(String id, String name, int salary) {
+    private Employee employee(String id, String name, int salary, String title, int age, String email) {
         Employee emp = new Employee();
         emp.setId(id);
         emp.setName(name);
         emp.setSalary(salary);
+        emp.setTitle(title);
+        emp.setAge(age);
+        emp.setEmail(email);
         return emp;
     }
 
     @Test
     void getAllEmployees_returnsEmployees_whenDataExists() {
-        List<Employee> employees = List.of(employee("1", "Alice", 1000), employee("2", "Bob", 1500));
+        String id1 = UUID.randomUUID().toString();
+        String id2 = UUID.randomUUID().toString();
+
+        List<Employee> employees = List.of(employee(id1, "Alice", 1000, "Engineer", 23, "abc@gmail.com"), employee(id2, "Bob", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
@@ -77,38 +85,40 @@ class EmployeeServiceTest {
 
     @Test
     void getEmployeeById_returnsEmployee() {
-        Employee emp = employee("1", "Alice", 1000);
+        String id = UUID.randomUUID().toString();
+
+        Employee emp = employee(id, "Alice", 20000, "Engineer-I", 23, "aaa@gmail.com");
         EmployeeDataDTO<Employee> response = new EmployeeDataDTO<>();
         response.setData(emp);
 
-        when(apiClient.getEmployeeById("1")).thenReturn(response);
+        when(apiClient.getEmployeeById(id)).thenReturn(response);
 
-        Employee result = employeeService.getEmployeeById("1");
+        Employee result = employeeService.getEmployeeById(id);
 
         assertThat(result).isEqualTo(emp);
-        verify(apiClient).getEmployeeById("1");
+        verify(apiClient).getEmployeeById(id);
     }
 
     @Test
     void searchEmployeesByName_returnsFilteredEmployees() {
-        List<Employee> employees =
-                List.of(employee("1", "Alice", 1000), employee("2", "Bob", 1500), employee("3", "Alfred", 1200));
+        List<Employee> employees = List.of(employee("1", "David main", 1000, "Engineer", 23, "abc@gmail.com"), employee("2", "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
         when(apiClient.getAllEmployees()).thenReturn(response);
 
-        List<Employee> result = employeeService.searchEmployeesByName("Al");
+        List<Employee> result = employeeService.searchEmployeesByName("main");
 
         assertThat(result).hasSize(2);
         assertThat(result).extracting(Employee::getName).allMatch(name -> name.toLowerCase()
-                .contains("al"));
+                .contains("main"));
     }
 
     @Test
     void getHighestSalary_returnsMaxSalary() {
-        List<Employee> employees =
-                List.of(employee("1", "Alice", 1000), employee("2", "Bob", 1500), employee("3", "Charlie", 1200));
+        String id1 = UUID.randomUUID().toString();
+        String id2 = UUID.randomUUID().toString();
+        List<Employee> employees = List.of(employee(id1, "David main", 1000, "Engineer", 23, "abc@gmail.com"), employee(id2, "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
@@ -138,18 +148,18 @@ class EmployeeServiceTest {
     void getTop10HighestEarningEmployeeNames_returnsTop10() {
         // 12 employees, salaries ascending
         List<Employee> employees = List.of(
-                employee("1", "E1", 100),
-                employee("2", "E2", 200),
-                employee("3", "E3", 300),
-                employee("4", "E4", 400),
-                employee("5", "E5", 500),
-                employee("6", "E6", 600),
-                employee("7", "E7", 700),
-                employee("8", "E8", 800),
-                employee("9", "E9", 900),
-                employee("10", "E10", 1000),
-                employee("11", "E11", 1100),
-                employee("12", "E12", 1200));
+                employee("1", "E1", 100, "SE-I", 25, "test1@gmail.com"),
+                employee("2", "E2", 200, "SE-II", 26, "test2@gmail.com"),
+                employee("3", "E3", 300, "SE-III", 27, "test3@gmail.com"),
+                employee("4", "E4", 400, "SE-I", 28, "test4@gmail.com"),
+                employee("5", "E5", 500, "SE-II", 29, "test5@gmail.com"),
+                employee("6", "E6", 600, "SE-III", 30, "test6@gmail.com"),
+                employee("7", "E7", 700, "SE-I", 31, "test7@gmail.com"),
+                employee("8", "E8", 800, "SE-II", 32, "test8@gmail.com"),
+                employee("9", "E9", 900, "SE-III", 33, "test9@gmail.com"),
+                employee("10", "E10", 1000, "SE-I", 34, "test10@gmail.com"),
+                employee("11", "E11", 1100, "SE-II", 35, "test11@gmail.com"),
+                employee("12", "E12", 1200, "SE-III", 36, "test12@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
@@ -172,7 +182,7 @@ class EmployeeServiceTest {
         request.setAge(30);
         request.setTitle("Developer");
 
-        Employee createdEmp = employee("10", "New Employee", 50000);
+        Employee createdEmp = employee("10", "New Employee", 50000, "Test worker", 33, "mtmail@gmail.com");
         EmployeeDataDTO<Employee> response = new EmployeeDataDTO<>();
         response.setData(createdEmp);
 
@@ -186,14 +196,15 @@ class EmployeeServiceTest {
 
     @Test
     void deleteEmployeeById_returnsSuccessMessage_whenDeleted() {
-        Employee emp = employee("1", "ToDelete", 1000);
+        String id = UUID.randomUUID().toString();
+        Employee emp = employee(id, "ToDelete", 1000, "Test worker", 33, "mtmail@gmail.com");
         EmployeeDataDTO<Employee> getResponse = new EmployeeDataDTO<>();
         getResponse.setData(emp);
 
-        when(apiClient.getEmployeeById("1")).thenReturn(getResponse);
+        when(apiClient.getEmployeeById(id)).thenReturn(getResponse);
         when(apiClient.deleteEmployeeByName("ToDelete")).thenReturn(true);
 
-        String message = employeeService.deleteEmployeeById("1");
+        String message = employeeService.deleteEmployeeById(id);
 
         assertThat(message).contains("Employee 'ToDelete' deleted successfully");
         verify(apiClient).deleteEmployeeByName("ToDelete");
@@ -201,13 +212,14 @@ class EmployeeServiceTest {
 
     @Test
     void deleteEmployeeById_returnsFailureMessage_whenNameEmpty() {
-        Employee emp = employee("1", "", 1000);
+        String id = UUID.randomUUID().toString();
+        Employee emp = employee(id, "", 1000, "Test worker", 33, "mtmail@gmail.com");
         EmployeeDataDTO<Employee> getResponse = new EmployeeDataDTO<>();
         getResponse.setData(emp);
 
-        when(apiClient.getEmployeeById("1")).thenReturn(getResponse);
+        when(apiClient.getEmployeeById(id)).thenReturn(getResponse);
 
-        String message = employeeService.deleteEmployeeById("1");
+        String message = employeeService.deleteEmployeeById(id);
 
         assertThat(message).isEqualTo("Employee deletion failed");
         verify(apiClient, never()).deleteEmployeeByName(anyString());
@@ -215,14 +227,16 @@ class EmployeeServiceTest {
 
     @Test
     void deleteEmployeeById_returnsFailureMessage_whenDeleteFails() {
-        Employee emp = employee("1", "ToDelete", 1000);
+        String id = UUID.randomUUID().toString();
+
+        Employee emp = employee(id, "ToDelete", 1000, "Test worker", 33, "mtmail@gmail.com");
         EmployeeDataDTO<Employee> getResponse = new EmployeeDataDTO<>();
         getResponse.setData(emp);
 
-        when(apiClient.getEmployeeById("1")).thenReturn(getResponse);
+        when(apiClient.getEmployeeById(id)).thenReturn(getResponse);
         when(apiClient.deleteEmployeeByName("ToDelete")).thenReturn(false);
 
-        String message = employeeService.deleteEmployeeById("1");
+        String message = employeeService.deleteEmployeeById(id);
 
         assertThat(message).isEqualTo("Employee deletion failed");
     }
@@ -230,7 +244,7 @@ class EmployeeServiceTest {
     @Test
     void getEmployeeById_returnsNull_whenNoEmployeeFound() {
         EmployeeDataDTO<Employee> response = new EmployeeDataDTO<>();
-        response.setData(null); // simulate no data
+        response.setData(null);
 
         when(apiClient.getEmployeeById("nonexistent")).thenReturn(response);
 
@@ -254,32 +268,35 @@ class EmployeeServiceTest {
 
     @Test
     void searchEmployeesByName_handlesNullEmployeeNames() {
-        List<Employee> employees =
-                List.of(employee("1", null, 1000), employee("2", "Alice", 1500), employee("3", "Bob", 1200));
+        String id1 = UUID.randomUUID().toString();
+        String id2 = UUID.randomUUID().toString();
+
+        List<Employee> employees = List.of(employee(id1, null, 1000, "Engineer", 23, "abc@gmail.com"), employee(id2, "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
         when(apiClient.getAllEmployees()).thenReturn(response);
 
-        List<Employee> result = employeeService.searchEmployeesByName("Al");
+        List<Employee> result = employeeService.searchEmployeesByName("main");
 
         assertThat(result).hasSize(1);
-        assertThat(result.get(0).getName()).isEqualTo("Alice");
+        assertThat(result.get(0).getName()).isEqualTo("Alic main");
     }
 
     @Test
     void searchEmployeesByName_returnsEmptyList_whenSearchTermIsNullOrEmpty() {
-        List<Employee> employees = List.of(employee("1", "Alice", 1000), employee("2", "Bob", 1500));
+        String id1 = UUID.randomUUID().toString();
+        String id2 = UUID.randomUUID().toString();
+
+        List<Employee> employees = List.of(employee(id1, "David main", 1000, "Engineer", 23, "abc@gmail.com"), employee(id2, "Alic main", 1500, "Engineer-II", 23, "abc1@gmail.com"));
         EmployeeDataDTO<List<Employee>> response = new EmployeeDataDTO<>();
         response.setData(employees);
 
         when(apiClient.getAllEmployees()).thenReturn(response);
 
-        // Null search term
         List<Employee> resultNull = employeeService.searchEmployeesByName(null);
         assertThat(resultNull).isEmpty();
 
-        // Empty string search term
         List<Employee> resultEmpty = employeeService.searchEmployeesByName("");
         assertThat(resultEmpty).isEmpty();
     }

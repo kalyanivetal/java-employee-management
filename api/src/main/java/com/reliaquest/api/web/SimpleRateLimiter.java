@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 public class SimpleRateLimiter {
     private final RateLimiter rateLimiter;
 
-    public SimpleRateLimiter(@Value("${rateLimiter.permitsPerSecond:2}") double permitsPerSecond) {
+    public SimpleRateLimiter(@Value("${rateLimiter.permitsPerSecond:1}") double permitsPerSecond) {
         this.rateLimiter = RateLimiter.create(permitsPerSecond);
     }
 
