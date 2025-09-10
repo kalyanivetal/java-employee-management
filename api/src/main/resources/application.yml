@@ -7,9 +7,13 @@ mockEmployeeServer:
   base-url: /api/v1/
 
 rateLimiter:
-  permitsPerSecond: 1
   enabled: true
-
+  permitsPerSecond: 5                  # Number of requests allowed per second
+  retry:
+    maxAttempts: 5                    # Maximum retry attempts on rate limit hit
+    initialBackoffMillis: 100         # Initial backoff time in milliseconds
+    backoffMultiplier: 2              # Exponential backoff multiplier
+    maxBackoffMillis: 2000            # Maximum backoff time in milliseconds
 logging:
   level:
     root: INFO

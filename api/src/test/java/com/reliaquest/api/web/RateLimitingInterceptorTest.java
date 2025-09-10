@@ -5,8 +5,10 @@ import static org.mockito.Mockito.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +52,7 @@ class RateLimitingInterceptorTest {
 
     @Test
     void testPreHandle_RateLimitExceeded() throws Exception {
-        when(mockLimiter.tryAcquire()).thenReturn(false);
+        when(mockLimiter.tryAcquireWithRetry()).thenReturn(false);
 
         StringWriter responseWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(responseWriter);
@@ -61,13 +63,16 @@ class RateLimitingInterceptorTest {
         assertFalse(result);
         verify(response).setStatus(429);
         printWriter.flush();
-        assertEquals("Too many requests - rate limit exceeded", responseWriter.toString());
+        assertEquals("Too many requests - rate limit exceeded after retries", responseWriter.toString());
     }
 
     @Test
     void testPreHandle_RateLimitAllowed() throws Exception {
-        when(mockLimiter.tryAcquire()).thenReturn(true);
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
 
+        when(mockLimiter.tryAcquireWithRetry()).thenReturn(true);
+        when(response.getWriter()).thenReturn(printWriter);
         boolean result = interceptor.preHandle(request, response, handler);
 
         assertTrue(result);

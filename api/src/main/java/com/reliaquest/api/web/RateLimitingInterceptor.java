@@ -25,9 +25,10 @@ public class RateLimitingInterceptor implements HandlerInterceptor {
         if (!isRateLimiterEnabled) {
             return true;
         }
-        if (!simpleRateLimiter.tryAcquire()) {
+
+        if (!simpleRateLimiter.tryAcquireWithRetry()) {
             response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());
-            response.getWriter().write("Too many requests - rate limit exceeded");
+            response.getWriter().write("Too many requests - rate limit exceeded after retries");
             return false;
         }
         return true;
